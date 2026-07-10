@@ -1,4 +1,4 @@
-# GVI Calculator 🧬
+# GVI Calculator
 
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
@@ -8,13 +8,13 @@
 
 By automatically integrating advanced phylogenetic tools, the pipeline synthesizes 9 critical genomic parameters—including Evolutionary Rate, Effective Reproductive Number (Re), and Recombination—into a single normalized Genomic Vulnerability Index (GVI) on a 0.0 to 1.0 scale.
 
-## 🚀 Key Features
-* 🧬 **Full Phylogenetic Integration**: Automates execution of `IQ-TREE 2` and Headless `BEAST 2` natively.
-* 📈 **Advanced Phylodynamics**: Automatically estimates molecular clock rates using `LSD2` and transmission dynamics using `BDSKY`.
-* 🖥️ **Interactive UI**: A beautiful, real-time web dashboard to visualize genomic risk metrics over time.
-* 🐳 **100% Reproducible**: Fully Dockerized backend ensuring cross-platform stability without complex dependency management.
+## Key Features
+* **Full Phylogenetic Integration**: Automates execution of `IQ-TREE 2` and Headless `BEAST 2` natively.
+* **Advanced Phylodynamics**: Automatically estimates molecular clock rates using `LSD2` and transmission dynamics using `BDSKY`.
+* **Interactive UI**: A beautiful, real-time web dashboard to visualize genomic risk metrics over time.
+* **100% Reproducible**: Fully Dockerized backend ensuring cross-platform stability without complex dependency management.
 
-## 🛠️ Installation & Execution
+## Installation & Execution
 
 ### Option 1: Docker (Recommended)
 This application is fully Dockerized for maximum cross-platform compatibility without needing to configure C++ or Java binaries manually.
@@ -43,7 +43,7 @@ If you cannot use Docker, you must install the dependencies manually on your ope
    ```
 6. Open your web browser and navigate to: [http://localhost:5000](http://localhost:5000)
 
-## 🧮 Mathematical Parameters Calculated
+## Mathematical Parameters Calculated
 The pipeline dynamically processes FASTA sequences and derives:
 1. **Selection Pressure (dN/dS)**: Nei-Gojobori / Jukes-Cantor
 2. **Codon Adaptation Index (CAI)**: Sharp & Li
@@ -57,7 +57,7 @@ The pipeline dynamically processes FASTA sequences and derives:
 
 *(Full methodological details are available directly in the Web Dashboard UI).*
 
-## 📚 Acknowledgments & Citations
+## Acknowledgments & Citations
 
 This tool acts as a powerful orchestrator for several state-of-the-art phylogenetic software packages. If you use Epi-GVI in your research, please ensure you cite both this repository and the incredible teams behind the underlying engines:
 
