@@ -59,7 +59,7 @@ The pipeline dynamically processes FASTA sequences and derives:
 
 ## Acknowledgments & Citations
 
-This tool acts as a powerful orchestrator for several state-of-the-art phylogenetic software packages. If you use Epi-GVI in your research, please ensure you cite both this repository and the incredible teams behind the underlying engines:
+This tool acts as a powerful orchestrator for several state-of-the-art phylogenetic software packages. If you use GVI_calculator in your research, please ensure you cite both this repository and the incredible teams behind the underlying engines:
 
 * **IQ-TREE 2** (Phylogenetic Inference & ModelFinder): 
   * *Minh BQ, Schmidt HA, Chernomor O, Schrempf D, Woodhams MD, von Haeseler A, Lanfear R (2020). IQ-TREE 2: New models and efficient methods for phylogenetic inference in the genomic era. Mol. Biol. Evol., 37:1530-1534.*
