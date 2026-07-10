@@ -20,7 +20,11 @@ By automatically integrating advanced phylogenetic tools, the pipeline synthesiz
 This application is fully Dockerized for maximum cross-platform compatibility without needing to configure C++ or Java binaries manually.
 
 1. Ensure you have [Docker Desktop installed](https://www.docker.com/products/docker-desktop/) and running.
-2. Open a terminal and navigate to the project directory.
+2. Clone this repository and navigate into it:
+   ```bash
+   git clone https://github.com/biocoderep/GVI_calculator.git
+   cd GVI_calculator
+   ```
 3. Run the following command:
    ```bash
    docker-compose up --build -d
@@ -31,9 +35,14 @@ This application is fully Dockerized for maximum cross-platform compatibility wi
 If you cannot use Docker, you must install the dependencies manually on your operating system (Linux or macOS recommended; Windows users should use WSL).
 
 1. **Install Python 3.10+**: Ensure Python and `pip` are installed.
-2. **Install IQ-TREE 2**: Download [IQ-TREE 2](http://www.iqtree.org/) and add the `iqtree2` binary to your system PATH.
-3. **Install BEAST 2**: Download [BEAST 2](https://www.beast2.org/), ensure Java is installed, and add the `beast` binary to your system PATH.
-4. **Install Python Dependencies**:
+2. **Clone the repository**:
+   ```bash
+   git clone https://github.com/biocoderep/GVI_calculator.git
+   cd GVI_calculator
+   ```
+3. **Install IQ-TREE 2**: Download [IQ-TREE 2](http://www.iqtree.org/) and add the `iqtree2` binary to your system PATH.
+4. **Install BEAST 2**: Download [BEAST 2](https://www.beast2.org/), ensure Java is installed, and add the `beast` binary to your system PATH.
+5. **Install Python Dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
