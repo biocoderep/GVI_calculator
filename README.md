@@ -20,16 +20,11 @@ By automatically integrating advanced phylogenetic tools, the pipeline synthesiz
 This application is fully Dockerized for maximum cross-platform compatibility without needing to configure C++ or Java binaries manually.
 
 1. Ensure you have [Docker Desktop installed](https://www.docker.com/products/docker-desktop/) and running.
-2. Clone this repository and navigate into it:
+2. Clone this repository and navigate into the folder:
    ```bash
    git clone https://github.com/biocoderep/GVI_calculator.git
-   cd GVI_calculator
    ```
-3. Run the following command:
-   ```bash
-   docker-compose up --build -d
-   ```
-4. Open your web browser and navigate to: [http://localhost:5000](http://localhost:5000)
+3. Simply double-click the **`Launch_Docker_GVI.bat`** file! The script will automatically build the backend container and open the Web Dashboard in your browser.
 
 ### Option 2: Native Installation (No Docker)
 If you cannot use Docker, you must install the dependencies manually on your operating system (Linux or macOS recommended; Windows users should use WSL).
@@ -46,11 +41,7 @@ If you cannot use Docker, you must install the dependencies manually on your ope
    ```bash
    pip install -r requirements.txt
    ```
-5. **Run the Application**:
-   ```bash
-   python app.py
-   ```
-6. Open your web browser and navigate to: [http://localhost:5000](http://localhost:5000)
+6. **Run the Application**: Simply double-click the **`Launch_GVI_Web_App.bat`** file to start the server and automatically launch the dashboard.
 
 ## Mathematical Parameters Calculated
 The pipeline dynamically processes FASTA sequences and derives:
