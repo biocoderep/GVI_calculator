@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genomic Viral Index (GVI) Calculator</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://unpkg.com/phylocanvas@2.8.1/dist/phylocanvas.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1><i class="fa-solid fa-virus-covid"></i> GVI Calculator</h1>
+            <p class="subtitle">Genomic Viral Index & Evolutionary Tracker</p>
+            <button id="infoBtn" class="btn primary-btn" style="margin-top: 15px;"><i class="fa-solid fa-circle-info"></i> Methodology & Parameters</button>
+        </header>
+
+        <main>
+            <section class="upload-section glass-panel" id="upload-panel">
+                <div class="drag-drop-area" id="drop-zone">
+                    <i class="fa-solid fa-cloud-arrow-up icon-large"></i>
+                    <h2>Upload Aligned FASTA Files</h2>
+                    <p>Drag & drop your files here, or click to browse</p>
+                    <input type="file" id="file-input" multiple accept=".fasta,.fa" style="display:none;">
+                    <button class="btn primary-btn" onclick="document.getElementById('file-input').click()">Browse Files</button>
+                </div>
+                
+                <div class="upload-guidelines" style="margin-top: 20px; text-align: left; background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 8px; font-size: 0.9rem;">
+                    <h4 style="margin-top: 0; color: var(--accent-blue);"><i class="fa-solid fa-circle-check"></i> Upload Guidelines</h4>
+                    <ul style="margin: 10px 0; padding-left: 20px; color: var(--text-muted); line-height: 1.5;">
+                        <li><strong>Format:</strong> Must be standard <code>.fasta</code> format and <strong>pre-aligned</strong> (padded with <code>-</code> gaps so all sequences are the same length).</li>
+                        <li><strong>Gene Targeting:</strong> Partial or complete sequences are acceptable, but they must all target the exact same gene segment (e.g., only Hemagglutinin).</li>
+                        <li><strong style="color: #e74c3c;">Header Rule (Critical):</strong> FASTA headers MUST contain the collection date at the end, separated by a pipe <code>|</code> character (e.g., <code>>id|location|host|date</code> or <code>>id|location|host|2015-09-23</code>). Missing dates will cause the Bayesian MCMC engine to fail.</li>
+                        <li><strong>Dataset Size:</strong> Absolute minimum of 4 sequences (with different dates) required for linear regression. 30 to 1,000+ sequences recommended for optimal mathematical accuracy.</li>
+                    </ul>
+                </div>
+                <div id="file-list" class="file-list"></div>
+                
+                <div id="weight-config-panel" class="weight-config-panel" style="display:none; margin-top: 20px; background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 8px;">
+                    <h4 style="margin-top: 0; color: var(--accent-blue);"><i class="fa-solid fa-sliders"></i> GVI Biological Weights (Optional)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Input your custom weights below (e.g. 0.5). Any blank fields will automatically use standard biological defaults. The backend will mathematically normalize your inputs so they always perfectly sum to 1.0 (100%).</p>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                        <div><label style="font-size: 0.8rem; color:#bbb; display:block; margin-bottom:4px;">μ (Evo Rate)</label><input type="number" id="w_mu" step="0.01" min="0" max="1" placeholder="Default: 0.13" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;"></div>
+                        <div><label style="font-size: 0.8rem; color:#bbb; display:block; margin-bottom:4px;">Re (Reprod.)</label><input type="number" id="w_re" step="0.01" min="0" max="1" placeholder="Default: 0.30" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;"></div>
+                        <div><label style="font-size: 0.8rem; color:#bbb; display:block; margin-bottom:4px;">π (Diversity)</label><input type="number" id="w_pi" step="0.01" min="0" max="1" placeholder="Default: 0.10" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;"></div>
+                        <div><label style="font-size: 0.8rem; color:#bbb; display:block; margin-bottom:4px;">MB (Mut Burden)</label><input type="number" id="w_mb" step="0.01" min="0" max="1" placeholder="Default: 0.20" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;"></div>
+                        <div><label style="font-size: 0.8rem; color:#bbb; display:block; margin-bottom:4px;">dN/dS</label><input type="number" id="w_dnds" step="0.01" min="0" max="1" placeholder="Default: 0.12" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;"></div>
+                        <div><label style="font-size: 0.8rem; color:#bbb; display:block; margin-bottom:4px;">GD (Gen Dist)</label><input type="number" id="w_gd" step="0.01" min="0" max="1" placeholder="Default: 0.10" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;"></div>
+                        <div><label style="font-size: 0.8rem; color:#bbb; display:block; margin-bottom:4px;">RI (Recomb)</label><input type="number" id="w_ri" step="0.01" min="0" max="1" placeholder="Default: 0.03" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;"></div>
+                        <div><label style="font-size: 0.8rem; color:#bbb; display:block; margin-bottom:4px;">CAI+GC</label><input type="number" id="w_cai" step="0.01" min="0" max="1" placeholder="Default: 0.02" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;"></div>
+                    </div>
+                </div>
+
+                <button class="btn calculate-btn" id="calculate-btn" style="display:none; margin-top: 20px;">Calculate Indices</button>
+            </section>
+
+            <section class="progress-section glass-panel" id="progress-panel" style="display:none;">
+                <h2><i class="fa-solid fa-microscope fa-spin"></i> Processing Genomes</h2>
+                <p id="current-file-lbl">Initializing DNA sequences...</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar" style="transition: width 0.5s ease-in-out;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <p id="current-step-lbl" style="color: var(--accent-blue); font-weight: 500; font-size: 0.9rem; margin: 0;">Starting...</p>
+                    <p id="progress-percent" class="percent-lbl" style="margin: 0;">0%</p>
+                </div>
+            </section>
+
+            <section class="results-section" id="results-panel" style="display:none;">
+                <div class="glass-panel summary-panel">
+                    <h2><i class="fa-solid fa-chart-line"></i> Analysis Complete</h2>
+                    <p>All genomic indices successfully calculated with High-Accuracy biological math.</p>
+                </div>
+
+                <div class="gvi-score-grid" style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px;">
+                    <div class="glass-panel chart-container" style="text-align: center; padding: 30px;">
+                        <h3><i class="fa-solid fa-shield-virus"></i> GVI 2.0 Composite Score</h3>
+                        <div id="gvi-score-display" style="font-size: 4rem; font-weight: 800; color: var(--accent-blue); margin: 15px 0;">--%</div>
+                        <p style="color: var(--text-muted);">Weighted aggregate of 8 genomic indices</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel table-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3>Raw Data</h3>
+                        <button id="downloadCsvBtn" class="btn primary-btn"><i class="fa-solid fa-download"></i> Download CSV</button>
+                    </div>
+                    <table id="results-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Seqs</th>
+                                <th>Model</th>
+                                <th>Diversity (π)</th>
+                                <th>Genetic Dist.</th>
+                                <th>dN/dS</th>
+                                <th>Mut. Burden</th>
+                                <th>CAI</th>
+                                <th>Re (BDSKY)</th>
+                                <th>GC %</th>
+                                <th>Evo. Rate</th>
+                                <th>Recomb.</th>
+                                <th>GVI Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="glass-panel">
+                    <h2><i class="fa-solid fa-code-branch"></i> Phylogenetic Trees</h2>
+                    <p>Maximum-Likelihood branches generated by IQ-TREE.</p>
+                    <div class="tree-gallery" id="tree-gallery">
+                        <!-- Tree images will be injected here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Methodology Info Modal -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content glass-panel">
+            <span class="close-btn">&times;</span>
+            <h2><i class="fa-solid fa-calculator"></i> Mathematical Parameters</h2>
+            <div class="modal-body">
+                <h4>1. Year</h4>
+                <p>The specific calendar year the viral sequences were sampled, acting as the temporal anchor for all molecular clock and phylogenetic calculations.</p>
+                
+                <h4>2. Sequence Count (n)</h4>
+                <p>The total number of valid FASTA sequences successfully processed in the alignment block for the given year.</p>
+
+                <h4>3. Selection Pressure (dN/dS Ratio)</h4>
+                <p>Calculated using a memory-safe variation of the <strong>Nei-Gojobori (1986)</strong> method. Sequences are translated into amino acids, and synonymous/non-synonymous sites are counted and corrected using the <strong>Jukes-Cantor</strong> model for multiple substitutions.<br>
+                <strong>Formula:</strong> <code>dN/dS = Mean(-0.75 * ln(1 - 4/3 pN)) / Mean(-0.75 * ln(1 - 4/3 pS))</code></p>
+                
+                <h4>4. Codon Adaptation Index (CAI)</h4>
+                <p>Calculated using the <strong>Sharp & Li (1987)</strong> formula. The reference weight parameters are hardcoded to the official <strong>Gallus gallus (Chicken)</strong> Codon Usage frequencies, making this highly accurate for Avian Influenza dynamics in primary avian hosts.<br>
+                <strong>Formula:</strong> <code>CAI = exp( (1/L) * Σ ln(w_i) )</code> where <code>w_i</code> is the relative adaptiveness of the codon.</p>
+                
+                <h4>5. Evolutionary Rate</h4>
+                <p>Calculated via <strong>IQ-TREE v2</strong> combined with the <strong>Least-Squares Dating (LSD2)</strong> algorithm. A Maximum-Likelihood phylogenetic tree is built using the best-fit substitution model (e.g., HKY+F+I+G4). This optimal model is determined automatically for each specific sequence alignment by the ModelFinder algorithm utilizing the Bayesian Information Criterion (BIC). LSD2 is then applied to the time-calibrated tree to calculate the evolutionary rate (substitutions per site per year) across the timeline.<br>
+                <strong>Formula:</strong> <code>Rate = Least-squares estimate of substitutions/site/year derived from the time-calibrated phylogeny.</code></p>
+                
+                <h4>6. Effective Reproductive Number (Re - BDSKY)</h4>
+                <p>Calculated using a Bayesian Markov Chain Monte Carlo (MCMC) algorithm via <strong>BEAST 2</strong> utilizing the Birth-Death Skyline (BDSKY) model. This estimates the temporal transmission dynamics of the virus, yielding the effective reproductive number (Re), which signifies whether the viral population is expanding (Re &gt; 1), endemic (Re ~ 1), or declining (Re &lt; 1).<br>
+                <strong>Formula:</strong> <code>Posterior Mean of Re from BDSKY MCMC.</code></p>
+
+                <h4>7. Recombination Rate (CoalRe)</h4>
+                <p>Calculated using <strong>Headless BEAST 2 (CoalRe)</strong>. A Bayesian MCMC algorithm traverses Ancestral Recombination Graphs (ARGs) and applies Coalescent Theory to calculate the true population Recombination Rate (ρ) or reassortment frequency.<br>
+                <strong>Formula:</strong> <code>Posterior Mean of ρ from CoalRe MCMC.</code></p>
+                
+                <h4>8. Genetic Diversity (π)</h4>
+                <p>Calculated using the standard nucleotide diversity formula (average pairwise differences per valid site across the entire alignment block).<br>
+                <strong>Formula:</strong> <code>π = Σ (diffs / valid_sites) / Total_Comparisons</code></p>
+                
+                <h4>9. Genetic Distance (GD)</h4>
+                <p>Calculated as the raw un-normalized pairwise p-distance between all sequences in the cluster. (Mathematically identical base arithmetic to π).<br>
+                <strong>Formula:</strong> <code>GD = Σ (diffs / valid_sites) / Total_Comparisons</code></p>
+
+                <h4>10. Mutation Burden (MB)</h4>
+                <p>Calculated by comparing every sequence in a given year to the very first sequence (the root) in that year's dataset, measuring the accumulation of raw mutations over time within the cluster, normalized per 1000 base pairs.<br>
+                <strong>Formula:</strong> <code>MB = Mean( (Sequence_Mismatches_vs_Root / Valid_Length) * 1000 )</code></p>
+                
+                <h4>11. GC Content</h4>
+                <p>Calculated by measuring the exact percentage of Guanine (G) and Cytosine (C) nucleotides across all sequences in the alignment block, which is a primary indicator of viral thermal stability.<br>
+                <strong>Formula:</strong> <code>GC = (Count_G + Count_C) / Total_Valid_Nucleotides</code></p>
+
+                <h4>12. GVI 2.0 Composite Score</h4>
+                <p>A scalar index that integrates all 9 primary genomic parameters into a single weighted score representing overall virulence and adaptive potential.<br>
+                <strong>Formula:</strong> <code>GVI(t) = w₁·Evo_Rate + w₂·Re + w₃·π + w₄·MB + w₅·dN/dS + w₆·GD + w₇·CAI + w₈·Recomb + w₉·GC</code> (normalized to a 0.0-1.0 scale).</p>
+
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/script.js"></script>
+</body>
+</html>

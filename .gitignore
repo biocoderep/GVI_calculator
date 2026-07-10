@@ -1,0 +1,28 @@
+# Ignore environments and cache
+__pycache__/
+venv/
+.env
+.DS_Store
+
+# Ignore bioinformatics binaries
+tools/
+
+# Ignore user uploads and temporary files
+uploads/
+jobs.db
+*.fasta
+*.fasta.*
+*.log
+*.lsd
+*.iqtree
+*.treefile
+*.bionj
+*.mldist
+*.contree
+*.model.gz
+*.beast.xml
+
+# Ignore local browser logs/errors if generated
+browser_log.txt
+catch_error.py
+test_phylocanvas.html

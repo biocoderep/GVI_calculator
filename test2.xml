@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beast beautitemplate='Standard' beautistatus='' namespace="beast.base.inference:beast.base.inference.distribution:beast.base.inference.util:beast.base.inference.parameter:beast.base.evolution:beast.base.evolution.alignment:beast.base.evolution.tree:beast.base.evolution.tree.coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood:bdsky.evolution.speciation:bdsky.evolution.tree:bdsky.math.distributions:bdsky.util" required="BDSKY v1.5.0" version="2.7">
+    <data id="alignment" spec="beast.base.evolution.alignment.Alignment" name="alignment">
+        <sequence id="seq_1" spec="beast.base.evolution.alignment.Sequence" taxon="A" totalcount="4" value="ATGC"/>
+        <sequence id="seq_2" spec="beast.base.evolution.alignment.Sequence" taxon="B" totalcount="4" value="ATGC"/>
+        <sequence id="seq_3" spec="beast.base.evolution.alignment.Sequence" taxon="C" totalcount="4" value="ATGC"/>
+    </data>
+    <run id='mcmc' spec='beast.base.inference.MCMC' chainLength="100">
+        <state id="state" spec="beast.base.inference.State" storeEvery="1000">
+            <tree id="Tree.t:alignment" spec="beast.base.evolution.tree.Tree" name="stateNode">
+                <taxonset id="TaxonSet.alignment" spec="beast.base.evolution.alignment.TaxonSet">
+                    <alignment idref="alignment"/>
+                </taxonset>
+            </tree>
+            <parameter id="clockRate.c:alignment" spec="beast.base.inference.parameter.RealParameter" name="stateNode">1.0</parameter>
+            <parameter id="reproductiveNumber.t:alignment" spec="beast.base.inference.parameter.RealParameter" lower="0.0" name="stateNode" upper="10.0">2.0</parameter>
+            <parameter id="becomeUninfectiousRate.t:alignment" spec="beast.base.inference.parameter.RealParameter" lower="0.0" name="stateNode" upper="10.0">1.0</parameter>
+            <parameter id="samplingProportion.t:alignment" spec="beast.base.inference.parameter.RealParameter" lower="0.0" name="stateNode" upper="1.0">0.01</parameter>
+        </state>
+        <distribution id="posterior" spec="beast.base.inference.CompoundDistribution">
+            <distribution id="prior" spec="beast.base.inference.CompoundDistribution">
+                <distribution id="BDSKY.t:alignment" spec="BirthDeathSkylineModel" becomeUninfectiousRate="@becomeUninfectiousRate.t:alignment" reproductiveNumber="@reproductiveNumber.t:alignment" samplingProportion="@samplingProportion.t:alignment" tree="@Tree.t:alignment"/>
+                <distribution id="ClockPrior.c:alignment" spec="beast.base.inference.distribution.Prior" name="distribution" x="@clockRate.c:alignment">
+                    <Uniform id="Uniform.0" name="distr" upper="Infinity"/>
+                </distribution>
+            </distribution>
+            <distribution id="likelihood" spec="beast.base.inference.CompoundDistribution" useThreads="true">
+            </distribution>
+        </distribution>
+    </run>
+</beast>

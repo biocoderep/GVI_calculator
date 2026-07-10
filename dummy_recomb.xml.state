@@ -1,0 +1,26 @@
+<itsabeastystatewerein version='2.0' sample='5000'>
+<statenode id='Tree.t:alignment'>(0:0.4902696655008296,((2:0.22212741777672274,3:1.2221274177767227)4:1.269225172817208,1:0.49135259059393066)5:0.998917074906899)6:0.0</statenode>
+<statenode id='ucldMean.c:alignment'>ucldMean.c:alignment[1 1] (-Infinity,Infinity): 0.017266100151881326 </statenode>
+<statenode id='ucldStdev.c:alignment'>ucldStdev.c:alignment[1 1] (0.0,Infinity): 0.5054773230792847 </statenode>
+<statenode id='rateCategories.c:alignment'>rateCategories.c:alignment[6 1] (0,5): 3 2 4 0 0 5 </statenode>
+<statenode id='popSize.t:alignment'>popSize.t:alignment[1 1] (-Infinity,Infinity): 0.2252284075016067 </statenode>
+<statenode id='recombinationRate'>recombinationRate[1 1] (-Infinity,Infinity): 0.1468999568409687 </statenode>
+</itsabeastystatewerein>
+<!--
+{"operators":[
+{"id":"ucldMeanScaler.c:alignment","p":0.5,"accept":41,"reject":10,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"ucldStdevScaler.c:alignment","p":0.5,"accept":90,"reject":51,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"CategoriesRandomWalk.c:alignment","p":"NaN","accept":261,"reject":185,"acceptFC":0,"rejectFC":0,"rejectIv":183,"rejectOp":183},
+{"id":"CategoriesSwapOperator.c:alignment","p":"NaN","accept":439,"reject":4,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"CategoriesUniform.c:alignment","p":"NaN","accept":433,"reject":5,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"PopSizeScaler.t:alignment","p":0.75,"accept":109,"reject":22,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"RecombScaler","p":0.75,"accept":37,"reject":4,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"CoalescentConstantTreeScaler.t:alignment","p":0.5,"accept":11,"reject":116,"acceptFC":0,"rejectFC":0,"rejectIv":30,"rejectOp":30},
+{"id":"CoalescentConstantTreeRootScaler.t:alignment","p":0.5,"accept":18,"reject":142,"acceptFC":0,"rejectFC":0,"rejectIv":49,"rejectOp":49},
+{"id":"CoalescentConstantUniformOperator.t:alignment","p":"NaN","accept":570,"reject":805,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"CoalescentConstantSubtreeSlide.t:alignment","p":1,"accept":136,"reject":520,"acceptFC":0,"rejectFC":0,"rejectIv":246,"rejectOp":246},
+{"id":"CoalescentConstantNarrow.t:alignment","p":"NaN","accept":35,"reject":663,"acceptFC":0,"rejectFC":0,"rejectIv":659,"rejectOp":659},
+{"id":"CoalescentConstantWide.t:alignment","p":"NaN","accept":3,"reject":156,"acceptFC":0,"rejectFC":0,"rejectIv":156,"rejectOp":156},
+{"id":"CoalescentConstantWilsonBalding.t:alignment","p":"NaN","accept":0,"reject":135,"acceptFC":0,"rejectFC":0,"rejectIv":101,"rejectOp":101}
+]}
+-->

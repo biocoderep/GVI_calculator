@@ -1,0 +1,6 @@
+Flask
+Werkzeug
+biopython
+pandas
+scipy
+matplotlib

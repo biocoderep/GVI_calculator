@@ -1,0 +1,28 @@
+<itsabeastystatewerein version='2.0' sample='10'>
+<statenode id='Tree.t:alignment'>(((1:0.9128174432802503,2:1.9128174432802503)4:0.08718283611781974,0:2.7939807001331474E-7)5:2.0601929495711602E-8,3:3.0000002999999995)6:0.0</statenode>
+<statenode id='ucldMean.c:alignment'>ucldMean.c:alignment[1 1] (-Infinity,Infinity): 0.001 </statenode>
+<statenode id='ucldStdev.c:alignment'>ucldStdev.c:alignment[1 1] (0.0,Infinity): 0.1 </statenode>
+<statenode id='rateCategories.c:alignment'>rateCategories.c:alignment[6 1] (0,5): 5 1 4 0 0 0 </statenode>
+<statenode id='reproductiveNumber.t:alignment'>reproductiveNumber.t:alignment[1 1] (0.0,10.0): 1.8114054360577794 </statenode>
+<statenode id='becomeUninfectiousRate.t:alignment'>becomeUninfectiousRate.t:alignment[1 1] (0.0,10.0): 1.0 </statenode>
+<statenode id='samplingProportion.t:alignment'>samplingProportion.t:alignment[1 1] (0.0,1.0): 0.01 </statenode>
+</itsabeastystatewerein>
+<!--
+{"operators":[
+{"id":"ucldMeanScaler.c:alignment","p":0.5,"accept":0,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"ucldStdevScaler.c:alignment","p":0.5,"accept":0,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"CategoriesRandomWalk.c:alignment","p":"NaN","accept":0,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"CategoriesSwapOperator.c:alignment","p":"NaN","accept":1,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"CategoriesUniform.c:alignment","p":"NaN","accept":1,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"ReScaler.t:alignment","p":0.75,"accept":1,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"becomeUninfectiousRateScaler.t:alignment","p":0.75,"accept":0,"reject":1,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"samplingProportionScaler.t:alignment","p":0.75,"accept":0,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"BDSKYTreeScaler.t:alignment","p":0.5,"accept":0,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"BDSKYTreeRootScaler.t:alignment","p":0.5,"accept":0,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"BDSKYUniformOperator.t:alignment","p":"NaN","accept":4,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"BDSKYSubtreeSlide.t:alignment","p":1,"accept":0,"reject":2,"acceptFC":0,"rejectFC":0,"rejectIv":2,"rejectOp":2},
+{"id":"BDSKYNarrow.t:alignment","p":"NaN","accept":1,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"BDSKYWide.t:alignment","p":"NaN","accept":0,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"BDSKYWilsonBalding.t:alignment","p":"NaN","accept":0,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0}
+]}
+-->

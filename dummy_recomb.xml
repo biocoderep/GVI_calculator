@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beast beautitemplate='Standard' beautistatus='' namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.math.distributions:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood:beast.evolution.branchratemodel" required="CoalRe v0.0.7" version="2.6">
+    <data id="alignment" spec="beast.evolution.alignment.Alignment" name="alignment">
+        <sequence id="seq_Seq1_2020" spec="Sequence" taxon="Seq1_2020" totalcount="4" value="ATGCATGC"/>
+        <sequence id="seq_Seq2_2021" spec="Sequence" taxon="Seq2_2021" totalcount="4" value="ATGCATGC"/>
+        <sequence id="seq_Seq3_2022" spec="Sequence" taxon="Seq3_2022" totalcount="4" value="ATGCATGC"/>
+        <sequence id="seq_Seq4_2023" spec="Sequence" taxon="Seq4_2023" totalcount="4" value="ATGCATGC"/>
+
+    </data>
+
+    <map name="Uniform" >beast.math.distributions.Uniform</map>
+    <map name="Exponential" >beast.math.distributions.Exponential</map>
+    <map name="LogNormal" >beast.math.distributions.LogNormalDistributionModel</map>
+    <map name="Normal" >beast.math.distributions.Normal</map>
+    <map name="Beta" >beast.math.distributions.Beta</map>
+    <map name="Gamma" >beast.math.distributions.Gamma</map>
+    <map name="LaplaceDistribution" >beast.math.distributions.LaplaceDistribution</map>
+    <map name="prior" >beast.math.distributions.Prior</map>
+    <map name="InverseGamma" >beast.math.distributions.InverseGamma</map>
+    <map name="OneOnX" >beast.math.distributions.OneOnX</map>
+
+    <run id="mcmc" spec="beast.core.MCMC" chainLength="5000">
+        <state id="state" spec="beast.core.State" storeEvery="1000">
+            <tree id="Tree.t:alignment" spec="beast.evolution.tree.Tree" name="stateNode">
+                <trait id="dateTrait.t:alignment" spec="beast.evolution.tree.TraitSet" traitname="date-forward" value="Seq1_2020=2020.0,
+Seq2_2021=2021.0,
+Seq3_2022=2022.0,
+Seq4_2023=2023.0">
+                    <taxa id="TaxonSet.alignment" spec="beast.evolution.alignment.TaxonSet">
+                        <alignment idref="alignment"/>
+                    </taxa>
+                </trait>
+                <taxonset idref="TaxonSet.alignment"/>
+            </tree>
+            
+            <parameter id="ucldMean.c:alignment" spec="parameter.RealParameter" name="stateNode">0.001</parameter>
+                <parameter id="ucldStdev.c:alignment" spec="parameter.RealParameter" lower="0.0" name="stateNode">0.1</parameter>
+                <stateNode id="rateCategories.c:alignment" spec="parameter.IntegerParameter" dimension="6" name="stateNode">1</stateNode>
+            <parameter id="popSize.t:alignment" spec="parameter.RealParameter" name="stateNode">0.3</parameter>
+            <parameter id="recombinationRate" spec="parameter.RealParameter" name="stateNode">0.05</parameter>
+        </state>
+
+        <distribution id="posterior" spec="util.CompoundDistribution">
+            <distribution id="prior" spec="util.CompoundDistribution">
+                <distribution id="CoalescentConstant.t:alignment" spec="Coalescent">
+                    <populationModel id="ConstantPopulation.t:alignment" spec="ConstantPopulation" popSize="@popSize.t:alignment"/>
+                    <treeIntervals id="TreeIntervals.t:alignment" spec="TreeIntervals" tree="@Tree.t:alignment"/>
+                </distribution>
+                
+                <prior id="ucldMeanPrior.c:alignment" name="distribution" x="@ucldMean.c:alignment"><Uniform id="Uniform.0" name="distr" upper="Infinity"/></prior>
+               <prior id="ucldStdevPrior.c:alignment" name="distribution" x="@ucldStdev.c:alignment"><Gamma id="Gamma.0s" name="distr" alpha="0.5396" beta="0.3819"/></prior>
+                <prior id="PopSizePrior.t:alignment" name="distribution" x="@popSize.t:alignment">
+                    <OneOnX id="OneOnX.1" name="distr"/>
+                </prior>
+                <prior id="RecombPrior" name="distribution" x="@recombinationRate">
+                    <Exponential name="distr" mean="1.0"/>
+                </prior>
+            </distribution>
+            <distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true">
+                <distribution id="treeLikelihood.alignment" spec="ThreadedTreeLikelihood" data="@alignment" tree="@Tree.t:alignment">
+                    <siteModel id="SiteModel.s:alignment" spec="SiteModel" 
+                                  gammaCategoryCount="1" 
+                                  shape="1.0" 
+                                  proportionInvariant="0.0">
+                            <parameter id="mutationRate.s:alignment" spec="parameter.RealParameter" estimate="false" name="mutationRate">1.0</parameter>
+                            <substModel id="JC69.s:alignment" spec="JukesCantor"/>
+                        </siteModel>
+                    <branchRateModel id="RelaxedClock.c:alignment" spec="beast.evolution.branchratemodel.UCRelaxedClockModel" rateCategories="@rateCategories.c:alignment" tree="@Tree.t:alignment" clock.rate="@ucldMean.c:alignment">
+                    <LogNormal id="LogNormalDistributionModel.c:alignment" S="@ucldStdev.c:alignment" meanInRealSpace="true" name="distr">
+                        <parameter id="RealParameter.1" spec="parameter.RealParameter" estimate="false" lower="0.0" name="M" upper="1.0">1.0</parameter>
+                    </LogNormal>
+                </branchRateModel>
+                </distribution>
+            </distribution>
+        </distribution>
+
+        
+        <operator id="ucldMeanScaler.c:alignment" spec="ScaleOperator" parameter="@ucldMean.c:alignment" scaleFactor="0.5" weight="1.0"/>
+                   <operator id="ucldStdevScaler.c:alignment" spec="ScaleOperator" parameter="@ucldStdev.c:alignment" scaleFactor="0.5" weight="3.0"/>
+                   <operator id="CategoriesRandomWalk.c:alignment" spec="IntRandomWalkOperator" parameter="@rateCategories.c:alignment" weight="10.0" windowSize="1"/>
+                   <operator id="CategoriesSwapOperator.c:alignment" spec="SwapOperator" intparameter="@rateCategories.c:alignment" weight="10.0"/>
+                   <operator id="CategoriesUniform.c:alignment" spec="UniformOperator" parameter="@rateCategories.c:alignment" weight="10.0"/>
+        <operator id="PopSizeScaler.t:alignment" spec="ScaleOperator" parameter="@popSize.t:alignment" weight="3.0"/>
+        <operator id="RecombScaler" spec="ScaleOperator" parameter="@recombinationRate" weight="1.0"/>
+        <operator id="CoalescentConstantTreeScaler.t:alignment" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t:alignment" weight="3.0"/>
+        <operator id="CoalescentConstantTreeRootScaler.t:alignment" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:alignment" weight="3.0"/>
+        <operator id="CoalescentConstantUniformOperator.t:alignment" spec="beast.evolution.operators.Uniform" tree="@Tree.t:alignment" weight="30.0"/>
+        <operator id="CoalescentConstantSubtreeSlide.t:alignment" spec="SubtreeSlide" tree="@Tree.t:alignment" weight="15.0"/>
+        <operator id="CoalescentConstantNarrow.t:alignment" spec="Exchange" tree="@Tree.t:alignment" weight="15.0"/>
+        <operator id="CoalescentConstantWide.t:alignment" spec="Exchange" isNarrow="false" tree="@Tree.t:alignment" weight="3.0"/>
+        <operator id="CoalescentConstantWilsonBalding.t:alignment" spec="WilsonBalding" tree="@Tree.t:alignment" weight="3.0"/>
+
+        <logger id="tracelog" spec="Logger" fileName="beast_recomb.log" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
+            <log idref="posterior"/>
+            <log idref="likelihood"/>
+            <log idref="prior"/>
+            <log idref="treeLikelihood.alignment"/>
+            <log id="TreeHeight.t:alignment" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t:alignment"/>
+            <log idref="popSize.t:alignment"/>
+            <log idref="recombinationRate"/>
+            
+            <log idref="ucldMean.c:alignment"/>
+              <log idref="ucldStdev.c:alignment"/>
+              <log id="rateStat.c:alignment" spec="beast.evolution.branchratemodel.RateStatistic" branchratemodel="@RelaxedClock.c:alignment" tree="@Tree.t:alignment"/>
+        </logger>
+
+        <logger id="treelog.t:alignment" spec="Logger" fileName="run.trees" logEvery="1000" mode="tree">
+            <log id="TreeWithMetaDataLogger.t:alignment" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t:alignment"/>
+        </logger>
+    </run>
+</beast>

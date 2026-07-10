@@ -1,0 +1,2 @@
+Codon_Adaptation_Index,Detected_Model,Effective_Reproduction_Number_Re,Evolutionary_Rate,GC_Content,GVI_Score,Genetic_Distance_GD,Mutation_Burden_MB,Nucleotide_Diversity_Pi,Recombination_Rate,Sequence_Count,Year,dN_dS_Ratio
+"0.7369","GTR+G","1.0501","1.00e-03","0.5374","62.07","0.06729","123.61","0.06729","0.9629","39","FMDV_2011_2015_aligned","0.0697"
