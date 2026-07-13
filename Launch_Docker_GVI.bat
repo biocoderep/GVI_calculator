@@ -4,6 +4,7 @@ echo GVI Calculator - Docker Edition Launcher
 echo ========================================================
 echo.
 echo Ensuring Docker backend is running...
+if not exist jobs.db type nul > jobs.db
 docker-compose up -d
 
 echo.
