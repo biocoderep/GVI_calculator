@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.onclick = (e) => { if(e.target == modal) modal.style.display = "none"; }
 
     let globalData = []; // Store data for CSV export
+    let gaugeChartInstance = null;
+    let radarChartInstance = null;
+    let trendChartInstance = null;
 
     // --- UPLOAD LOGIC ---
     const dropZone = document.getElementById('drop-zone');
@@ -192,7 +195,95 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Removed Chart.js rendering logic
+        if (gaugeChartInstance) gaugeChartInstance.destroy();
+        if (radarChartInstance) radarChartInstance.destroy();
+        if (trendChartInstance) trendChartInstance.destroy();
+
+        let latestRow = data[data.length - 1];
+        let score = latestRow.GVI_Score;
+        if (score === "Not Calculated" || score === undefined) score = 0;
+        
+        // 1. Gauge Chart
+        const ctxGauge = document.getElementById('gaugeChart').getContext('2d');
+        gaugeChartInstance = new Chart(ctxGauge, {
+            type: 'doughnut',
+            data: {
+                labels: ['Score', 'Remaining'],
+                datasets: [{
+                    data: [score, 100 - score],
+                    backgroundColor: ['#3498db', '#222'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                circumference: 180,
+                rotation: 270,
+                cutout: '80%',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            }
+        });
+
+        // 2. Radar Chart
+        const ctxRadar = document.getElementById('radarChart').getContext('2d');
+        const parseVal = (v) => isNaN(parseFloat(v)) ? 0 : parseFloat(v);
+        radarChartInstance = new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: ['Pi (x10)', 'GD (x10)', 'dN/dS', 'MB (/100)', 'CAI', 'Re', 'GC', 'Recomb'],
+                datasets: [{
+                    label: 'Latest Dataset Metrics',
+                    data: [
+                        parseVal(latestRow.Nucleotide_Diversity_Pi) * 10,
+                        parseVal(latestRow.Genetic_Distance_GD) * 10,
+                        parseVal(latestRow.dN_dS_Ratio),
+                        parseVal(latestRow.Mutation_Burden_MB) / 100,
+                        parseVal(latestRow.Codon_Adaptation_Index),
+                        parseVal(latestRow.Effective_Reproduction_Number_Re),
+                        parseVal(latestRow.GC_Content),
+                        parseVal(latestRow.Recombination_Rate)
+                    ],
+                    backgroundColor: 'rgba(52, 152, 219, 0.4)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    pointBackgroundColor: '#fff',
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { r: { ticks: { display: false }, grid: { color: '#444' }, angleLines: { color: '#444' }, pointLabels: { color: '#bbb' } } },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // 3. Trend Chart
+        const ctxTrend = document.getElementById('trendChart').getContext('2d');
+        const validData = data.filter(r => r.GVI_Score !== "Not Calculated" && r.GVI_Score !== undefined);
+        const labels = validData.map(r => r.Year);
+        const scores = validData.map(r => parseVal(r.GVI_Score));
+
+        trendChartInstance = new Chart(ctxTrend, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'GVI Score',
+                    data: scores,
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { 
+                    y: { min: 0, max: 100, grid: { color: '#333' }, ticks: { color: '#bbb' } },
+                    x: { grid: { color: '#333' }, ticks: { color: '#bbb' } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
     }
 
     // CSV Download Logic

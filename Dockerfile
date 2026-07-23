@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     curl \
     default-jre \
+    libhmsbeagle-dev \
+    libhmsbeagle-java \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up working directory
@@ -17,8 +19,8 @@ RUN wget -qO iqtree.tar.gz https://github.com/iqtree/iqtree2/releases/download/v
     cp iqtree-2.3.6-Linux-intel/bin/iqtree2 /usr/local/bin/iqtree2 && \
     rm -rf iqtree.tar.gz iqtree-2.3.6-Linux-intel
 
-# Download and install BEAST2
-RUN wget -qO beast.tgz https://github.com/CompEvol/beast2/releases/download/v2.7.5/BEAST.v2.7.5.Linux.x86.tgz && \
+# Install BEAST2 and missing packages
+RUN wget -qO beast.tgz https://github.com/CompEvol/beast2/releases/download/v2.6.7/BEAST.v2.6.7.Linux.tgz && \
     tar -xzf beast.tgz && \
     mv beast /usr/local/beast && \
     ln -s /usr/local/beast/bin/beast /usr/local/bin/beast && \

@@ -32,8 +32,7 @@ def process_fasta_file(filepath, custom_weights=None, job_id=None):
             r.id = f"{original_id}_{counter}"
             counter += 1
         seen_ids.add(r.id)
-        r.name = r.id
-        r.description = r.id
+        # Fix: DO NOT overwrite r.description with r.id to preserve temporal metadata (dates)
         
     from Bio import SeqIO
     SeqIO.write(records, filepath, "fasta")
@@ -75,18 +74,24 @@ def process_fasta_file(filepath, custom_weights=None, job_id=None):
     # but fallback to IQ-TREE's LSD2 if BEAST failed to sample it properly.
     final_evo_rate = beast_evo if beast_evo > 0.0000001 else iqtree_evo
 
-    gvi_score = calculate_gvi(
-        mu=final_evo_rate, 
-        re=re_baseline, 
-        pi=pi, 
-        mb=mb, 
-        dnds=mean_dnds, 
-        gd=gd, 
-        ri=true_recomb, 
-        cai=mean_cai, 
-        gc_content=gc,
-        custom_weights=custom_weights
-    )
+    if final_evo_rate < 0.0000001 or re_baseline is None or true_recomb is None:
+        final_evo_rate_str = "Not Calculated" if final_evo_rate < 0.0000001 else '{:.2e}'.format(final_evo_rate)
+        gvi_score_str = "Not Calculated"
+    else:
+        final_evo_rate_str = '{:.2e}'.format(final_evo_rate)
+        gvi_score = calculate_gvi(
+            mu=final_evo_rate, 
+            re=re_baseline, 
+            pi=pi, 
+            mb=mb, 
+            dnds=mean_dnds, 
+            gd=gd, 
+            ri=true_recomb, 
+            cai=mean_cai, 
+            gc_content=gc,
+            custom_weights=custom_weights
+        )
+        gvi_score_str = round(gvi_score, 4)
 
     # Safely define year_str for output
     basename = os.path.basename(filepath)
@@ -101,12 +106,12 @@ def process_fasta_file(filepath, custom_weights=None, job_id=None):
         "Genetic_Distance_GD": round(gd, 5),
         "Mutation_Burden_MB": round(mb, 2),
         "GC_Content": round(gc, 4),
-        "Evolutionary_Rate": '{:.2e}'.format(final_evo_rate),
+        "Evolutionary_Rate": final_evo_rate_str,
         "dN_dS_Ratio": round(mean_dnds, 4),
         "Codon_Adaptation_Index": round(mean_cai, 4),
-        "Effective_Reproduction_Number_Re": round(re_baseline, 4),
-        "Recombination_Rate": round(true_recomb, 4),
-        "GVI_Score": round(gvi_score, 4),
+        "Effective_Reproduction_Number_Re": round(re_baseline, 4) if re_baseline is not None else "Not Calculated",
+        "Recombination_Rate": round(true_recomb, 4) if true_recomb is not None else "Not Calculated",
+        "GVI_Score": gvi_score_str,
         "Newick_Tree": tree_newick
     }
     

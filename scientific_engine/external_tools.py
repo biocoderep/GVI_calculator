@@ -59,14 +59,8 @@ def chunk_fasta(fasta_path, max_seqs=60):
     return chunk_paths
 
 def calculate_dynamic_chain_length(fasta_path):
-    from Bio import SeqIO
-    records = list(SeqIO.parse(fasta_path, "fasta"))
-    num_seqs = len(records)
-    if num_seqs == 0: return 500000
-    avg_len = sum(len(r.seq) for r in records) / num_seqs
-    base_chain = 2000000
-    dynamic_length = int(base_chain * (num_seqs / 30.0) * (avg_len / 1700.0))
-    return max(500000, min(dynamic_length, 3000000))
+    # We now use a fixed 1,000,000 step size to evaluate ESS frequently
+    return 1000000
 
 def get_decimal_date(date_str):
     import datetime
@@ -284,16 +278,35 @@ def calculate_beast_recombination(fasta_path, detected_model="GTR+G"):
         wsl_xml = to_wsl_path(xml_path) if Config.USE_WSL_FALLBACK else xml_path
         import os
         max_threads = str(os.cpu_count() or 2)
-        cmd = [beast_bin, "-threads", max_threads, "-overwrite", wsl_xml]
+        use_gpu = False
+        try:
+            if subprocess.run(["nvidia-smi"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
+                use_gpu = True
+        except: pass
+        
+        cmd = [beast_bin, "-threads", max_threads]
+        if use_gpu: cmd.append("-beagle_GPU")
+        cmd.extend(["-overwrite", wsl_xml])
         if Config.USE_WSL_FALLBACK: cmd = ["wsl"] + cmd
             
         loop_count = 0
-        max_loops = 5
+        max_loops = float('inf')
         ess_achieved = False
         
         while loop_count < max_loops and not ess_achieved:
             try:
                 logger.info(f"Starting BEAST MCMC on chunk {i+1}/{len(chunk_paths)} (Loop {loop_count+1})")
+                if loop_count > 0:
+                    import re
+                    try:
+                        with open(wsl_xml, 'r') as f:
+                            xml_content = f.read()
+                        new_len = chain_length * (loop_count + 1)
+                        xml_content = re.sub(r'chainLength="\d+"', f'chainLength="{new_len}"', xml_content)
+                        with open(wsl_xml, 'w') as f:
+                            f.write(xml_content)
+                    except Exception as e:
+                        logger.error(f"Failed to update chainLength: {e}")
                 work_dir = os.path.dirname(chunk)
                 subprocess.run(cmd, cwd=work_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=None, text=True)
                 
@@ -325,7 +338,9 @@ def calculate_beast_recombination(fasta_path, detected_model="GTR+G"):
                     logger.info(f"Chunk {i+1} ESS - Recomb: {recomb_ess:.1f}, Evo: {evo_ess:.1f}")
                     if recomb_ess < 100 or evo_ess < 100:
                         logger.warning(f"ESS < 100. Resuming BEAST MCMC...")
-                        cmd = [beast_bin, "-threads", max_threads, "-resume", wsl_xml]
+                        cmd = [beast_bin, "-threads", max_threads]
+                        if use_gpu: cmd.append("-beagle_GPU")
+                        cmd.extend(["-resume", wsl_xml])
                         if Config.USE_WSL_FALLBACK: cmd = ["wsl"] + cmd
                         loop_count += 1
                     else:
@@ -473,16 +488,35 @@ def calculate_bdsky_re(fasta_path, detected_model="GTR+G"):
         wsl_xml = to_wsl_path(xml_path) if Config.USE_WSL_FALLBACK else xml_path
         import os
         max_threads = str(os.cpu_count() or 2)
-        cmd = [beast_bin, "-threads", max_threads, "-overwrite", wsl_xml]
+        use_gpu = False
+        try:
+            if subprocess.run(["nvidia-smi"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
+                use_gpu = True
+        except: pass
+        
+        cmd = [beast_bin, "-threads", max_threads]
+        if use_gpu: cmd.append("-beagle_GPU")
+        cmd.extend(["-overwrite", wsl_xml])
         if Config.USE_WSL_FALLBACK: cmd = ["wsl"] + cmd
             
         loop_count = 0
-        max_loops = 5
+        max_loops = float('inf')
         ess_achieved = False
         
         while loop_count < max_loops and not ess_achieved:
             try:
                 logger.info(f"Starting BDSKY MCMC on chunk {i+1}/{len(chunk_paths)} (Loop {loop_count+1})")
+                if loop_count > 0:
+                    import re
+                    try:
+                        with open(wsl_xml, 'r') as f:
+                            xml_content = f.read()
+                        new_len = chain_length * (loop_count + 1)
+                        xml_content = re.sub(r'chainLength="\d+"', f'chainLength="{new_len}"', xml_content)
+                        with open(wsl_xml, 'w') as f:
+                            f.write(xml_content)
+                    except Exception as e:
+                        logger.error(f"Failed to update chainLength: {e}")
                 work_dir = os.path.dirname(chunk)
                 subprocess.run(cmd, cwd=work_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=None, text=True)
                 
@@ -506,7 +540,9 @@ def calculate_bdsky_re(fasta_path, detected_model="GTR+G"):
                     logger.info(f"Chunk {i+1} ESS - Re: {re_ess:.1f}")
                     if re_ess < 100:
                         logger.warning(f"ESS < 100. Resuming BDSKY MCMC...")
-                        cmd = [beast_bin, "-threads", max_threads, "-resume", wsl_xml]
+                        cmd = [beast_bin, "-threads", max_threads]
+                        if use_gpu: cmd.append("-beagle_GPU")
+                        cmd.extend(["-resume", wsl_xml])
                         if Config.USE_WSL_FALLBACK: cmd = ["wsl"] + cmd
                         loop_count += 1
                     else:
